@@ -20,7 +20,7 @@ const client = new ApolloClient({
 ```
 `uri` doesn't look correct. Do you remember on which port was our GraphQL server running?
 
-I do! Replace the `uri` with `http://localhost:3000`. Our Apollo client knows where to request the queries now.
+I do! Replace the `uri` with `http://localhost:3000/raspberry-api`. Our Apollo client knows where to request the queries now.
 
 Next, you need to provide this client to Apollo module. To make our code AOT compatible you need to create a
 function that return your client. Like:
@@ -51,6 +51,6 @@ export class AppModule { }
 ```
 
 We connected our app with our GraphQL server. From now on whenever we use a GraphQL query it will send the request 
-to `http://localhost:3000`.
+to `http://localhost:3000/raspberry-api`.
 
 
