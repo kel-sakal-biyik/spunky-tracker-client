@@ -1,21 +1,28 @@
 # spunky-tracker-client
 
-Here we will create a small application to track Spunky's gps location and barking.
+Our bootstrap app is up an running. Now we need to connect our app to our GraphQL server. 
 
-It will consist of two components. One to measure how noise he makes, and another one to track his movement to 
-see if he runs around too much.
+To do that first we need to install Apollo Client:
 
-We will use angular-cli to create our application and bootstrap it. So we need to install it first
+`npm install apollo-client apollo-angular graphql-tag --save`
 
-Run `npm install -g @angular/cli`
+Ok, it is installed. Now, we need to introduce Apollo Client to our app. In `app.module.ts` you need to import Apollo Client
+and create an network interface to configure it. Like this:
 
-Done? Ok cool now we can create our application by running:
+```
+import { ApolloClient, createNetworkInterface } from 'apollo-client';
 
-`ng new spunky-tracker-client --skip-git -dir ./`
+const client = new ApolloClient({
+  networkInterface: createNetworkInterface({
+    uri: 'http://my-api.grapql.com'
+  })
+});
+```
+`uri` doesn't look correct. Do you remember on which port was our GraphQL server running?
 
-Here we have an initial setup to start creating our components. Let's see if it is running
+I do! Replace the `uri` with `http://localhost:3000`
 
-`ng serve`
-
+Finally, we connected our app with our GraphQL server. From now on whenever we use a GraphQL query it will send the request 
+to `http://localhost:3000`.
 
 
