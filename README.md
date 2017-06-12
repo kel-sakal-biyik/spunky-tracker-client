@@ -1,28 +1,20 @@
 # spunky-tracker-client
 
-Our bootstrap app is up an running. Now we need to connect our app to our GraphQL server. 
+We are ready to create our first component. It will be our bark meter component. It will get decibel data from our GraphQL 
+server and show it. We can also play pre-recorded "Shhh, no barking!" sound on our Raspbery Pi at home.
 
-To do that first we need to install Apollo Client:
+Let's start with creating it. 
 
-`npm install apollo-client apollo-angular graphql-tag --save`
+`ng generate component BarkMeter -m app.module.ts`
 
-Ok, it is installed. Now, we need to introduce Apollo Client to our app. In `app.module.ts` you need to import Apollo Client
-and create an network interface to configure it. Like this:
+This helper will generate our component files (according to the best practices) and will declare our component
+in our AppModule.
 
-```
-import { ApolloClient, createNetworkInterface } from 'apollo-client';
+It would be really nice if we had a good progress bar to visualise how hard the barking is...
 
-const client = new ApolloClient({
-  networkInterface: createNetworkInterface({
-    uri: 'http://my-api.grapql.com'
-  })
-});
-```
-`uri` doesn't look correct. Do you remember on which port was our GraphQL server running?
-
-I do! Replace the `uri` with `http://localhost:3000`
-
-Finally, we connected our app with our GraphQL server. From now on whenever we use a GraphQL query it will send the request 
-to `http://localhost:3000`.
-
-
+Luckily we have Angular Material 2! A good reusable component library which we will gonna use. First we need to 
+install.
+ 
+`npm install --save @angular/material`
+ 
+ 
