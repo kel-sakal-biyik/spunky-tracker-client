@@ -17,5 +17,5 @@ Here we have an initial setup to start creating our components. Let's see if it 
 
 `ng serve`
 
-
+_If anything goes wrong checkout to next branch: `git checkout app-setup` _
 
