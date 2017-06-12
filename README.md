@@ -53,4 +53,6 @@ export class AppModule { }
 We connected our app with our GraphQL server. From now on whenever we use a GraphQL query it will send the request 
 to `http://localhost:3000/raspberry-api`.
 
+_Stuck? Go to solution branch: `git checkout apollo-setup`_
+
 
