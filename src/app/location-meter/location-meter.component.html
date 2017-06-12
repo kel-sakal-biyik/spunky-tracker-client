@@ -1,0 +1,14 @@
+<md-card>
+  <md-card-title>Location Meter</md-card-title>
+  <md-card-content>
+    <span><strong>Latitude: {{latitude}} </strong></span>
+    <span><strong>Longitude: {{longitude}}</strong></span>
+  </md-card-content>
+  <md-card-actions>
+    <button
+      md-raised-button
+      [color]="'primary'"
+      (click)="increaseCount()">Go to your bed!</button>
+    <span><strong>Played {{playCount}} many times!</strong></span>
+  </md-card-actions>
+</md-card>

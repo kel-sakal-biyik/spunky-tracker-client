@@ -13,6 +13,7 @@ import {
   MdProgressBarModule,
   MdButtonModule
 } from '@angular/material';
+import { LocationMeterComponent } from './location-meter/location-meter.component';
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
@@ -27,7 +28,8 @@ export function provideClient(): ApolloClient {
 @NgModule({
   declarations: [
     AppComponent,
-    BarkMeterComponent
+    BarkMeterComponent,
+    LocationMeterComponent
   ],
   imports: [
     BrowserModule,
