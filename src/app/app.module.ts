@@ -5,6 +5,14 @@ import { AppComponent } from './app.component';
 
 import { ApolloClient, createNetworkInterface } from 'apollo-client';
 import { ApolloModule } from 'apollo-angular';
+import { BarkMeterComponent } from './bark-meter/bark-meter.component';
+import {
+  MdToolbarModule,
+  MdGridListModule,
+  MdCardModule,
+  MdProgressBarModule,
+  MdButtonModule
+} from '@angular/material';
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
@@ -18,11 +26,17 @@ export function provideClient(): ApolloClient {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    BarkMeterComponent
   ],
   imports: [
     BrowserModule,
-    ApolloModule.forRoot(provideClient)
+    ApolloModule.forRoot(provideClient),
+    MdToolbarModule,
+    MdGridListModule,
+    MdCardModule,
+    MdProgressBarModule,
+    MdButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
