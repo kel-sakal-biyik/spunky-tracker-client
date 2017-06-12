@@ -4,10 +4,14 @@
       <md-progress-bar
         [color]="'primary'"
         [mode]="'determinate'"
-        [value]="80">
+        [value]="decibel">
       </md-progress-bar>
   </md-card-content>
   <md-card-actions>
-    <button md-raised-button [color]="'primary'">Sssh! No Barking!</button>
+    <button
+      md-raised-button
+      [color]="'primary'"
+      (click)="increaseCount()">Sssh! No Barking!</button>
+    <span><strong>Played {{playCount}} many times!</strong></span>
   </md-card-actions>
 </md-card>
