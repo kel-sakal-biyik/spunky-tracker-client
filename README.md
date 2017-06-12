@@ -1,70 +1,189 @@
 # spunky-tracker-client
 
-We are ready to create our first component. It will be our bark meter component. It will get decibel data from our GraphQL 
-server and show it. We can also play pre-recorded "Shhh, no barking!" sound on our Raspbery Pi at home.
+Ok, our Bark Meter is there. It is ready to show the decibel value and play "Shhh No Barking!" sound on our Raspberry Pi.
 
-Let's start with creating it. 
+First, start with updating decibel value. To do that we need to query our GraphQL server, using Apollo client. So, our component
+needs to know about Apollo and the query. 
 
-`ng generate component BarkMeter -m app.module.ts`
-
-This helper will generate our component files (according to the best practices) and will declare our component
-in our AppModule.
-
-It would be really nice if we had a good progress bar to visualise how hard the barking is...
-
-Luckily we have Angular Material 2! A good reusable component library which we will gonna use. First we need to 
-install.
+In `bark-meter-component.ts` import `Apollo` and `graphql-tag`. Apollo is responsible for sending your queries to you GraphQL
+server. `gql` template tag will help you to write your queries in GraphQL query language.
  
-`npm install --save @angular/material`
+```
+import { Apollo } from 'apollo-angular';
+import gql from 'graphql-tag';
+``` 
+
+Next, also import `OnInit` interface, we will need it shortly:
+
+```
+import { Component, OnInit } from '@angular/core';
+```
+
+Ok, now we are ready to execute our query. We need to inject `Apollo` service in our module. We can easily do it in constructor
+
+```
+export class BarkMeterComponent {
+  constructor(private apollo: Apollo) {}
+}
+```
+
+I told you we're gonna need `OnInit`. Now it is time. When our component initializes, we want it to get the decibel value and 
+update our progress bar. To do that we need a query to execute on GraphQL server:
+
+```
+const GetDecibel = gql`
+  query GetDecibel {
+    microphone {
+      decibel
+    }
+  }
+`;
+```
+
+We can send this query like this:
  
-Now we can use some of those components to make our application look less crappy. Let's start with `app.component.html`
- 
-Delete the bootstrap HTML and create the basic layout of our application.
+```
+export class BarkMeterComponent implements OnInit{
   
-```
-<md-toolbar [color]="'primary'">
-  <span>Spunky Tracker</span>
-</md-toolbar>
-<md-grid-list [cols]="1" [rowHeight]="'200px'" [gutterSize]="20">
-  <md-grid-tile [colspan]="1" [rowspan]="1">
-    <app-bark-meter></app-bark-meter>
-  </md-grid-tile>
-</md-grid-list>
-```
+  constructor(private apollo: Apollo) {}
 
-Here we used toolbar and grid list from material library. We need to import them to be able to use them. In `app.module.ts`
-import: 
+  ngOnInit() {
+    this.apollo.watchQuery<any>({
+      query: GetDecibel,
+      pollInterval: 10000
+    });
+  }
+}
+``` 
 
-```
-import {
-  MdToolbarModule,
-  MdGridListModule
-} from '@angular/material';
-```
+Now, if you open your application in your browser, nothing will update. However from your developer tools you can monitor the 
+network connections and see what happens there. Since we set the pollInterval to 10 seconds, it will send the request to the 
+the server in every 10 seconds. To reflect the updates on our interface, we need to do a couple of things. 
 
-and put those module in modules import list:
+First, we need to subscribe to the observable which is returned by Apollo service. Yes, it returns an observable, so you can
+apply operators on it, subscribe and consume. What is an Observable? That is a whole another story which we cannot cover within 
+this workshop.
+
+We also need a variable to set the value of the decibel. Easy like this:
 
 ```
-@NgModule({
-  declarations: [
-    AppComponent,
-    BarkMeterComponent
-  ],
-  imports: [
-    BrowserModule,
-    ApolloModule.forRoot(provideClient),
-    MdToolbarModule,
-    MdGridListModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
+export class BarkMeterComponent implements OnInit{
+  public decibel: number;  
+  
+  constructor(private apollo: Apollo) {}
+
+  ngOnInit() {
+    this.apollo.watchQuery<any>({
+      query: GetDecibel,
+      pollInterval: 10000
+    });
+  }
+}
 ```
 
-Noticed that `<app-bark-meter></app-bark-meter>` ? Where does it come from? Remember we created our component with 
-`ng generate` ? There. It also creates the selector for our component prefixed with `app`. So, whatever we put in 
-`bark-meter.component.html` will appear there. So let's create our Bark Meter.
+and set its value to the one we get from server
+
+```
+export class BarkMeterComponent implements OnInit{
+  public decibel: number;  
+  
+  constructor(private apollo: Apollo) {}
+
+  ngOnInit() {
+    this.apollo.watchQuery<any>({
+      query: GetDecibel,
+      pollInterval: 10000
+    }).subscribe(({data}) => {
+      this.decibel = data.microphone.decibel;
+    });
+  }
+}
+```
+
+Finally, we need to tell our progress bar component to read this value in `bark-meter.component.html`:
+
+```
+<md-progress-bar
+  [color]="'primary'"
+  [mode]="'determinate'"
+  [value]="decibel">
+</md-progress-bar>
+```
+
+Ok, go to `http://localhost:4200` to see your Bark Meter on action!
+
+Awesome, right? Still, we have a missing function. We need to tell Spunky to stop barking. If he ever listen to our voice
+coming out of a speaker. Anyhow, let's give it a shot.
+
+This button will play the sound and will also show how many times we played it. Remember the mutation we created in our GraphQL
+server? Yes, it is time to use that one. Again we need to create a 'mutation query':
+
+```
+const IncreasePlayCount = gql`
+  mutation IncreaseNoBarkingCount($playType: String!) {
+    countPlay(playType: $playType) {
+      value
+    }
+  }
+`;
+```
+
+We will pass which play count to increase to this query and it will return the updated value. Again we ne need a variable to
+set this value:
+
+```
+export class BarkMeterComponent implements OnInit{
+  public decibel: number;  
+  public playCount: number = 0;
+  
+  constructor(private apollo: Apollo) {}
+
+  ngOnInit() {
+    this.apollo.watchQuery<any>({
+      query: GetDecibel,
+      pollInterval: 10000
+    }).subscribe(({data}) => {
+      this.decibel = data.microphone.decibel;
+    });
+  }
+}
+```
+
+Like normal queries we need to use Apollo service to execute it on our server. This time we will create a function to call
+Apollo service. Because, this function should be triggered by our button:
+
+```
+export class BarkMeterComponent implements OnInit{
+  public decibel: number;
+  public playCount: number = 0;
+
+  constructor(private apollo: Apollo) {}
+
+  ngOnInit() {
+    this.apollo.watchQuery<any>({
+      query: GetDecibel,
+      pollInterval: 10000
+    }).subscribe(({data}) => {
+      this.decibel = data.microphone.decibel;
+    });
+  }
+
+  increaseCount() {
+    this.apollo.mutate<any>({
+      mutation: IncreasePlayCount,
+      variables: {
+        playType: 'noBarking'
+      }
+    }).subscribe(({ data }) => {
+      this.playCount = data.countPlay.value;
+    },(error) => {
+      console.log('there was an error sending the query', error);
+    });
+  }
+}
+```
+
+Now, bind this function to our button in our html file, and also add an element to show the count:
 
 ```
 <md-card>
@@ -73,64 +192,36 @@ Noticed that `<app-bark-meter></app-bark-meter>` ? Where does it come from? Reme
       <md-progress-bar
         [color]="'primary'"
         [mode]="'determinate'"
-        [value]="80">
+        [value]="decibel">
       </md-progress-bar>
   </md-card-content>
   <md-card-actions>
-    <button md-raised-button [color]="'primary'">Sssh! No Barking!</button>
+    <button
+      md-raised-button
+      [color]="'primary'"
+      (click)="increaseCount()">Sssh! No Barking!</button>
+    <span><strong>Played {{playCount}} many times!</strong></span>
   </md-card-actions>
 </md-card>
 ```
 
-Now, we also used card, button and progress bar. We also need to import those:
+So, on click event we will fire our `increaseCount` function and it will update our playCount value. Refresh your page and give
+it a try.
 
-```
-import {
-  MdToolbarModule,
-  MdGridListModule,
-  MdCardModule,
-  MdProgressBarModule, 
-  MdButtonModule, 
-} from '@angular/material';
-```
+Our Bark Meter is complete! You learned:
 
-And, add them to the module:
+* How to create a component
+* How to execute a GraphQL a query and a mutation from your component
+* How to update your interface with that values
 
-```
-@NgModule({
-  declarations: [
-    AppComponent,
-    BarkMeterComponent
-  ],
-  imports: [
-    BrowserModule,
-    ApolloModule.forRoot(provideClient),
-    MdToolbarModule,
-    MdGridListModule,
-    MdCardModule,
-    MdProgressBarModule,
-    MdButtonModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
-```
+In the light of the steps that we completed, now you will try to create Location Meter component and complete our application.
 
-If you go `http://localhost:4200`, you will see your Bark Meter! Congratz! It looks a little small though. Let's fix it:
+Location Meter should:
 
-Open `bark-meter.component.css` and add style:
-
-```
-:host {
-  flex: 1 0 auto;
-}
-```
-
-Your Bark Meter is looking much better now. We used `:host` because of Angular's ViewEncapsulation options. From components
-css file you can only style the elements _inside_ your component. If you want to style your components wrapper element you need
-to use `:host` pseudo-selector.
-
-Visually, it look decent, but it is not working...
-
-Let's fix that next.
+* Query the location part of our schema
+* Display the location change in an interface (It is up to you to decide how to show it. Be creative. You can use available
+material components shown [here](https://material.angular.io/components). Don't forget to import new material components in
+your `app.module.ts`)
+* Show and update goToBed sound count
+ 
+In trouble: `git checkout location-meter`
