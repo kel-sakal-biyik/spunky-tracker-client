@@ -136,3 +136,6 @@ Visually, it look decent, but it is not working...
 Let's fix that next.
 
 _Things are not working for you? Here: `git checkout bark-meter-visual`_
+
+_P.S: Do not forget `npm update` after checkout_
+
