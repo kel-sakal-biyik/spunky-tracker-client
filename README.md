@@ -10,4 +10,7 @@ material components shown [here](https://material.angular.io/components). Don't 
 your `app.module.ts`)
 * Show and update goToBed sound count
  
-In trouble: `git checkout location-meter`
+_In trouble: `git checkout location-meter`_
+
+_P.S: Do not forget `npm update` after checkout_
+
