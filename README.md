@@ -215,3 +215,5 @@ Our Bark Meter is complete! You learned:
 * How to update your interface with that values
 
 _You tried everything and still no pulse? `git checkout bark-meter-functionality`_
+
+_P.S: Do not forget `npm update` after checkout_
