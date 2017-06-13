@@ -55,4 +55,7 @@ to `http://localhost:3000/raspberry-api`.
 
 _Stuck? Go to solution branch: `git checkout apollo-setup`_
 
+_P.S: Do not forget `npm update` after checkout_
+
+
 
